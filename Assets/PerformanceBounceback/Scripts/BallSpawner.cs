@@ -13,6 +13,7 @@ public class BallSpawner : MonoBehaviour {
 
     private float cooldown;
     private float cooldownLength = 0.5f;
+    private Rigidbody ballRigidBody;
 
     void Awake()
     {
@@ -21,7 +22,7 @@ public class BallSpawner : MonoBehaviour {
 
     void Start()
     {
-        //Create Bullet Pool
+        //Create Ball Pool
         pooledBalls = new List<GameObject>();
         for (int i = 0; i < ballsAmount; i++)
         {
@@ -34,20 +35,12 @@ public class BallSpawner : MonoBehaviour {
 public GameObject GetPooledBall()
 {
     ballPoolNum++;
-    if (ballPoolNum > (ballsAmount - 1))
+    if (ballPoolNum > (ballsAmount - 1)) // if we've reached the last ball in the pool, go back to first one
     {
         ballPoolNum = 0;
     }
-    //if we’ve run out of objects in the pool too quickly, create a new one
-    if (pooledBalls[ballPoolNum].activeInHierarchy)
-    {
-        //create a new bullet and add it to the bulletList
-        GameObject obj = Instantiate(pooledBall);
-        pooledBalls.Add(obj);
-        ballsAmount++;
-        ballPoolNum = ballsAmount - 1;
-    }
-        Debug.Log(ballPoolNum);
+
+        //Debug.Log(ballPoolNum);
         return pooledBalls[ballPoolNum];
 }
    	
@@ -58,16 +51,30 @@ public GameObject GetPooledBall()
         {
             cooldown = cooldownLength;
             SpawnBall();
-        }		
+        }	
 	}
 
     void SpawnBall()
     {
+
+        // run the BallSpawner's Get function and create reference to returned object
         GameObject selectedBall = BallSpawner.current.GetPooledBall();
+
+        //manipulate postion of object
         selectedBall.transform.position = transform.position;
         Rigidbody selectedRigidbody = selectedBall.GetComponent<Rigidbody>();
         selectedRigidbody.velocity = Vector3.zero;
         selectedRigidbody.angularVelocity = Vector3.zero;
+        selectedBall.SetActive(true);
+        
+    }
+
+    void deactivateBall()
+    {
+        // run the BallSpawner's Get function and create reference to returned object
+        GameObject selectedBall = BallSpawner.current.GetPooledBall();
+
+        //deactivate to recycle ball
         selectedBall.SetActive(true);
     }
 }
